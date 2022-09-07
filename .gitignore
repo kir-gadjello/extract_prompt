@@ -1,3 +1,10 @@
+# Project-specific cache dirs
+cache/imgs/
+cache/models/
+
+# Editor temp files
+**/*~
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
