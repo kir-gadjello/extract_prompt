@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Prompt Extractor v0.3
+# Prompt Extractor v0.4
 # Copyright (c) 2022 kir-gadjello, WonkyGrub, pharmapsychotic
 
 import os
@@ -13,7 +13,7 @@ from tabulate import tabulate
 import requests
 
 import torch
-import clip
+import open_clip as clip
 
 from torchvision import transforms
 from torchvision.transforms.functional import InterpolationMode
@@ -108,6 +108,33 @@ def try_cache(
     return combine(loaded)
 
 
+avail_models = dict(
+    ViTB32=["ViT-B/32", "ViT-B-32-quickgelu", "openai"],
+    ViTB32_LAION2B=[None, "ViT-B-32", "laion2b_e16"],
+    ViTB16=["ViT-B/16", "ViT-B-16", "openai"],
+    ViTL14=["ViT-L/14", "ViT-L-14", "openai"],
+    ViTL14_336px=["ViT-L/14@336px", "ViT-L-14-336", "openai"],
+    RN101=["RN101", "RN101-quickgelu", "openai"],
+    RN50x4=["RN50x4", "RN50x4", "openai"],
+    RN50x16=["RN50x16", "RN50x16", "openai"],
+    RN50x64=["RN50x64", "RN50x64", "openai"],
+)
+
+
+def create_clip(mname, half=False, device=None):
+    assert mname in avail_models
+    _, laion_name, source = avail_models[mname]
+    model, _, transform = clip.create_model_and_transforms(
+        laion_name,
+        pretrained=source,
+        precision="fp32" if not half else "fp16",
+        device=device,
+    )
+    model.eval()
+    setattr(model, "mname", mname)
+    return model, transform
+
+
 default_aspects = dict(mediums=1, artists=1, trending=1, movements=1, flavors=3)
 
 
@@ -125,7 +152,7 @@ parser.add_argument(
     "--clip_models",
     type=str,
     default="ViTL14",
-    help="CLIP models to use, default is ViTL14. Select from [ViTB32, ViTB16, ViTL14, ViTL14_336px, RN101, RN50, RN50x4, RN50x16, RN50x64]",
+    help=f"CLIP models to use, default is ViTL14 from OpenAI. Select from [{','.join(avail_models.keys())}]",
 )
 parser.add_argument(
     "--caption_model",
@@ -147,7 +174,7 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-print("==< Prompt Extractor v0.3 >==")
+print("==<{ Prompt Extractor v0.4 }>==")
 
 used_top = {}
 for k, v in args.top.items():
@@ -288,9 +315,7 @@ def extract_prompt(image, models, top_counts={}):
 
     for model_name in models:
         print(f"Extracting prompt with {model_name}...")
-        model, preprocess = clip.load(model_name)
-        setattr(model, "mname", model_name)
-        model = touch_model(model, args)
+        model, preprocess = create_clip(model_name, half=args.half, device=device)
 
         images = preprocess(image).unsqueeze(0)
         print("Encoding image ...", end="")
@@ -382,26 +407,12 @@ def extract_prompt(image, models, top_counts={}):
         )
 
 
-avail_models = dict(
-    ViTB32="ViT-B/32",
-    ViTB16="ViT-B/16",
-    ViTL14="ViT-L/14",
-    ViTL14_336px="ViT-L/14@336px",
-    RN101="RN101",
-    RN50x4="RN50x4",
-    RN50x16="RN50x16",
-    RN50x64="RN50x64",
-)
-
+clip_models = []
 for m in args.clip_models.split(","):
     assert m in avail_models
+    clip_models.append(m)
 
 print("Using CLIP models:", args.clip_models)
-
-
-models = []
-for m in args.clip_models.split(","):
-    models.append(avail_models[m])
 
 
 def load_img(image_path_or_url):
@@ -423,4 +434,4 @@ def load_img(image_path_or_url):
 
 for image in args.images:
     img = load_img(image)
-    extract_prompt(img, models=models, top_counts=args.top)
+    extract_prompt(img, models=clip_models, top_counts=args.top)

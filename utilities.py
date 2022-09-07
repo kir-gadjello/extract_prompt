@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Prompt Extractor v0.3
+# Prompt Extractor v0.4
 # Copyright (c) 2022 kir-gadjello
 
 import os
