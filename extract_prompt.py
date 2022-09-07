@@ -113,6 +113,7 @@ avail_models = dict(
     ViTB32_LAION2B=[None, "ViT-B-32", "laion2b_e16"],
     ViTB16=["ViT-B/16", "ViT-B-16", "openai"],
     ViTL14=["ViT-L/14", "ViT-L-14", "openai"],
+    ViTL14_LAION400M=[None, "ViT-L-14", "laion400m_e32"],
     ViTL14_336px=["ViT-L/14@336px", "ViT-L-14-336", "openai"],
     RN101=["RN101", "RN101-quickgelu", "openai"],
     RN50x4=["RN50x4", "RN50x4", "openai"],
@@ -127,7 +128,7 @@ def create_clip(mname, half=False, device=None):
     model, _, transform = clip.create_model_and_transforms(
         laion_name,
         pretrained=source,
-        precision="fp32" if not half else "fp16",
+        precision="fp16" if half else "fp32",
         device=device,
     )
     model.eval()

@@ -8,10 +8,19 @@ The resulting caption can be used with generative text-to-image system like Stab
 No GPU is necessary - the tool runs pretty fast on old CPU on a hacker's laptop. Embeddings are cached for blazingly fast execution.
 
 ## Installation
-* Clone the repository `git clone https://github.com/kir-gadjello/extract_prompt; cd extract_prompt;` or download and extract the latest release zip
-* If you have a decently recent debian-like Linux distro (for example, Ubuntu), you don't have to use pip;
-    just install the packages from apt:`sudo apt install python3-requests python3-tqdm python3-tabulate python3-pil python3-torch python3-torchvision`
-* Otherwise, use pip: `pip3 install -r requirements.txt`
+* Clone the repository
+
+    ```git clone https://github.com/kir-gadjello/extract_prompt; cd extract_prompt;```
+
+    or download and extract the latest release zip
+
+* If you have a decently recent debian-like Linux distro (for example, Ubuntu), you don't have to use pip, just install the packages from apt:
+
+    ```sudo apt install python3-requests python3-tqdm python3-tabulate python3-pil python3-torch python3-torchvision```
+
+* Otherwise, use pip:
+
+    ```pip3 install -r requirements.txt```
 
 ## Usage
 
@@ -45,7 +54,7 @@ Inspired by:
 * and its extended fork by @WonkyGrub https://github.com/WonkyGrub/clip-interrogator-customdata
 
 ## TODO
-* folders and image caching
-* html batch report
+* batch folder handling, image caching
+* html-formatted image batch report
 * self-hosted web ui
 * ?
